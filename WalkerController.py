@@ -8,9 +8,10 @@ class WalkerController( breve.Object ):
 		self.genome = Genome()
 		self.colors = [breve.randomExpression( breve.vector( 1, 1, 1 ) ),breve.randomExpression( breve.vector( 1, 1, 1 ) )]
 
-	def breed( self, other, child ):
-		print "breeding walker #", other.getID(), " and walker #", self.getID(), " -> walker #", child.getID()
+	def breedWith( self, other):
+		child = WalkerController()
 		child.getGenome().crossover( other.getGenome(), self.getGenome() )
+		return child
 
 	def applyJointVelocities( self, walkerBody, t ):
 		walkerBody.setJointVelocities(self.genome.calculateJointVelocities(t))
@@ -38,3 +39,6 @@ class WalkerController( breve.Object ):
 
 	def setID( self, n ):
 		self.ID = n
+
+	def getGenomeString( self ):
+		return self.genome.toString()
