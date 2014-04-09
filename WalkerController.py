@@ -24,6 +24,9 @@ class WalkerController( breve.Object ):
 
 	def mutate( self ):
 		self.genome.mutate()
+	
+	def setGenome( self, chromosomes ):
+		self.genome.setChromosomes( chromosomes )
 
 	def getGenome( self ):
 		return self.genome

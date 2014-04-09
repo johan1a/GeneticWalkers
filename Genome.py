@@ -4,7 +4,7 @@ from random import randint, uniform
 
 PI = 3.14159
 MUTATION_PROBABILITY = 0.05
-MAX_ANGV = 2.5
+MAX_ANGV = 5
 
 ANGV = 8
 AMPLITUDE = 9
@@ -15,7 +15,7 @@ class Genome( breve.Object ):
 		self.randomize()
 
 	def calculateJointVelocities( self, time ):
-		return [self.calculateJointVelocity(i, time ) for i in range(0,8)]
+		return [self.calculateJointVelocity( i, time ) for i in range(0,8)]
 
 	def calculateJointVelocity( self, i, time ):
 		return self.getAmplitude() *  math.sin( self.getAngV() * time + self.getDT(i) ) 
@@ -51,15 +51,18 @@ class Genome( breve.Object ):
 				if n < ANGV:
 					self.chromosomes[ n ] = uniform(-PI, PI)
 				if n == ANGV:
-					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.8, 1.2)
+					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.7, 1.3)
 				if n == AMPLITUDE:
-					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.8, 1.2)
-
+					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.7, 1.3)
+					
 	def randomize( self ):
 		for i in range(0,8):
 			self.chromosomes[ i ] = uniform( -MAX_ANGV, MAX_ANGV  )
-		self.chromosomes[ ANGV ] = uniform(-PI, PI)	
+		self.chromosomes[ ANGV ] = uniform(-MAX_ANGV, MAX_ANGV)	
 		self.chromosomes[ AMPLITUDE ] = uniform(4, 6)	
+
+	def setChromosomes( self, chromosomes ):
+		self.chromosomes = chromosomes
 
 	def toString( self ):
 		return " ".join([str(g) for g in self.chromosomes])

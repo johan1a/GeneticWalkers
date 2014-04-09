@@ -8,10 +8,10 @@ from random import randint
 
 breve.Genome = Genome # takes care of problems with import conflicts in other files 
 
-ROUND_MAX_DURATION = 60
+ROUND_MAX_DURATION = 120
 STATUS_CHECK_INTERVAL = 10
-POPULATION_SIZE = 30
-ELITE_COUNT = 5
+POPULATION_SIZE = 60
+ELITE_COUNT = 15
 SAVED_WALKERS = "savedWalkers.txt"
 
 # A walker is considered stationary if it has not moved 
@@ -26,6 +26,7 @@ class EvolutionHandler( breve.PhysicalControl ):
 		self.startNewTournament()
 
 	def startNewTournament( self ):
+		print "Starting tournament with generation #", self.generation
 		self.currentWalkerIndex = -1
 		self.initWalkerIDs()
 		self.startNewRound()
