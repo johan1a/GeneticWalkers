@@ -1,4 +1,4 @@
 GeneticWalkers
 ==============
 
-Evolution of walking four legged creatures using genetic programming
+Evolution of walking four legged creatures using a genetic algorithm.
