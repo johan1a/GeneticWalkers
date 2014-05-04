@@ -8,10 +8,14 @@ from random import randint
 
 breve.Genome = Genome # takes care of problems with import conflicts in other files 
 
-ROUND_MAX_DURATION = 120
+# True if each round is stopped after ROUND_MAX_DURATION. 
+# If false, the round continues until the walker has stopped
+MAX_DURATION_CHECK = True
+
+ROUND_MAX_DURATION = 60
 STATUS_CHECK_INTERVAL = 10
-POPULATION_SIZE = 60
-ELITE_COUNT = 15
+POPULATION_SIZE = 10
+ELITE_COUNT = 1
 SAVED_WALKERS = "savedWalkers.txt"
 
 # A walker is considered stationary if it has not moved 
@@ -34,9 +38,13 @@ class EvolutionHandler( breve.PhysicalControl ):
 	def startNewRound( self ):
 		self.currentWalkerIndex = self.currentWalkerIndex + 1
 		self.roundDuration = 0;
+		self.uprightCount = 0.0
+
+		self.walkerBody.initBody( self.walkers[ self.currentWalkerIndex ].getChromosomes() )
 		self.walkerBody.center()
 		self.walkerBody.setColors(self.walkers[ self.currentWalkerIndex ].getColors())
 		self.walkerPrevLocation = self.walkerBody.getLocation()
+
 		self.showInfo()
 		self.schedule( 'checkWalkerStatus', ( self.getTime() + STATUS_CHECK_INTERVAL ) )
 
@@ -44,6 +52,9 @@ class EvolutionHandler( breve.PhysicalControl ):
 	# Switches to the next walker if that is the case.
 	def checkWalkerStatus( self ):
 		self.roundDuration = self.roundDuration + STATUS_CHECK_INTERVAL
+		if( self.walkerBody.isUpright() ):
+			self.uprightCount = self.uprightCount + 1
+
 		if( self.walkerIsStill() or self.roundDuration >= ROUND_MAX_DURATION): #self.walkerIsStill() || 
 			self.switchWalker()
 		else:
@@ -52,9 +63,17 @@ class EvolutionHandler( breve.PhysicalControl ):
 
 	def switchWalker( self ):
 		distance = breve.length( self.walkerBody.getLocation() )
-		self.walkers[ self.currentWalkerIndex ].setDistanceTraveled( distance )
-		print "Walker " , self.currentWalkerIndex , " walked " , distance , " LU in ", self.roundDuration, " TU"
-		
+		uprightRatio = 0.5 + 0.5 * self.uprightCount * STATUS_CHECK_INTERVAL / self.roundDuration
+		score = distance * uprightRatio
+
+		walker = self.walkers[ self.currentWalkerIndex ]
+		walker.setDistanceTraveled( distance )
+		walker.setUprightRatio( uprightRatio )
+		walker.setScore( score )
+
+		print "Walker " , self.currentWalkerIndex , " Score: ", score , " Distance: ", distance
+		distance , " LU in ", self.roundDuration, " TU. Upright Ration: ", uprightRatio, "\n"
+
 		if ( self.currentWalkerIndex == POPULATION_SIZE - 1):
 			self.breedWalkers()
 			self.startNewTournament()
@@ -63,13 +82,14 @@ class EvolutionHandler( breve.PhysicalControl ):
 
 	def breedWalkers( self ):
 		print "breeding walkers..."
-		self.walkers = quickSort(self.walkers)
+		self.walkers = sortByScore(self.walkers)
 
 		# Print the results and save the best walker to file.
 		self.saveWalkerToFile(self.walkers[0])
 		print "Results: "
-		for w in self.walkers:
-			print w.getID() , ": " , w.getDistance()
+		print "(ID: Score, Distance)"
+		for i in range(0,10):
+			print self.walkers[i].getID() , ": " , self.walkers[i].getScore(), ": ", self.walkers[i].getDistance()
 
 		# The walkers of the next generation. 
 		# The best walkers get to live on in the next generation.
@@ -77,8 +97,9 @@ class EvolutionHandler( breve.PhysicalControl ):
 
 		for p in range(0, POPULATION_SIZE - ELITE_COUNT):
 			parents = self.chooseParents()
-			child = parents[0].breedWith(parents[1])
-			child.mutate()
+			childrenGenomes = parents[0].breedWith( parents[1] )
+			children = [ WalkerController( childrenGenomes[i] ) for i in range( 0, len( childrenGenomes ))]
+			[ child.mutate() for child in children ]
 			nextGeneration = nextGeneration + [child]
 
 		self.walkers = nextGeneration
@@ -105,40 +126,40 @@ class EvolutionHandler( breve.PhysicalControl ):
 	def initWalkers( self ):
 		self.walkerBody = WalkerBody()
 		self.watch( self.walkerBody )
-		self.walkers = breve.createInstances( WalkerController, POPULATION_SIZE )
+		self.walkers = [ WalkerController() for i in range(0, POPULATION_SIZE)] 
 		self.generation = 0
 		print "Starting program..."
 
 	def initWalkerIDs( self ):
-		for i in range(0, POPULATION_SIZE):
+		for i in range(0, len(self.walkers)):
 			self.walkers[i].setID(i)
 
 	def initWorld( self ):
 		self.setRandomSeedFromDevRandom()
-		self.enableFastPhysics()
-		self.setFastPhysicsIterations( 40 )
+		#self.enableFastPhysics()
+		#self.setFastPhysicsIterations( 40 )
 		self.enableLighting()
 		self.enableSmoothDrawing()
-		self.moveLight( breve.vector( 0, 20, 0 ) )
+		self.moveLight( breve.vector( 5, 20, 0 ) )
 		floor = breve.Floor()
 		floor.catchShadows()
 		self.cloudTexture = breve.Image().load( 'images/clouds.png' )
 		self.enableShadowVolumes()
 		self.enableReflections()
-		self.setBackgroundColor( breve.vector( 0.4, 0.6, 0.9 ) )
+		self.setBackgroundColor( breve.vector( 0.3, 0.6, 0.9 ) )
 		self.setBackgroundTextureImage( self.cloudTexture )
 
-		self.offsetCamera( breve.vector( 3, 13, -13 ) )
+		self.offsetCamera( breve.vector( 4, 16, -12 ) )
 
 	def iterate( self ):
 		self.walkers[ self.currentWalkerIndex ].applyJointVelocities( self.walkerBody, self.getTime() )
 		breve.PhysicalControl.iterate( self )
-	
+
 	def saveWalkerToFile( self, walker):
 		f = open(SAVED_WALKERS, 'a')
 		f.write("d: " + str(walker.getDistance()) + " :genome: " + walker.getGenomeString() + "\n")
 		f.close()
-		
+
 	def showInfo( self ):
 		infoString = "Walker #" + str(self.currentWalkerIndex)
 		infoString = infoString + '\n' + " Generation #" + str(self.generation)
@@ -149,11 +170,11 @@ class EvolutionHandler( breve.PhysicalControl ):
 		return breve.length( self.walkerBody.getLocation() - self.walkerPrevLocation ) < MOVEMENT_THRESHOLD
 
 
-def quickSort(list):
+def sortByScore(list):
     if list == []: 
         return []
     else:
         pivot = list[0]
-        lesser = quickSort([x for x in list[1:] if x.getDistance() < pivot.getDistance()])
-        greater = quickSort([x for x in list[1:] if x.getDistance() >= pivot.getDistance()])
+        lesser = sortByScore([x for x in list[1:] if x.getScore() < pivot.getScore()])
+        greater = sortByScore([x for x in list[1:] if x.getScore() >= pivot.getScore()])
         return greater + [pivot] + lesser

@@ -6,9 +6,9 @@ from WalkerController import WalkerController
 from Genome import Genome
 from random import randint
 breve.Genome = Genome # takes care of problems with import conflicts in other files 
-#genome = [1.28358265241, 2.27558417881, -1.80042392019, -0.107369341751, -1.51048552499, 0.677948039621, -3.06073744831, 2.08250112473, 2.83727253916, 3.68920889123]
-g = "1.28358265241 2.27558417881 -1.99161113192 -0.514256660802 -1.51048552499 0.677948039621 -3.06073744831 2.3904053083 2.83727253916 3.68920889123"
-g = "1.28358265241 2.27558417881 -1.80042392019 -0.514256660802 -1.51048552499 0.677948039621 -3.06073744831 2.3904053083 2.74338466348 3.62708183166"
+
+
+g = "0.0860385311332 -0.120679504711 -0.924597734509 1.97496378067 -2.50684928228 -1.81097398914 2.72179527687 0.956908322985 -3.13598009506 2.6908170596 -2.18316182757 -0.819708617539 -8.55846926932 6.4879072571 5.41217668914 1.46880346625 1.15705564537 1.48487549897"
 genome = map(float, g.split(' '))
 
 class WalkerViewer( breve.PhysicalControl ):
@@ -23,6 +23,7 @@ class WalkerViewer( breve.PhysicalControl ):
 		self.watch( self.walkerBody )
 		self.walker = WalkerController()
 		self.walker.setGenome( genome )
+		
 		print "Starting program..."
 
 	def initWorld( self ):
@@ -45,5 +46,6 @@ class WalkerViewer( breve.PhysicalControl ):
 	def iterate( self ):
 		self.walker.applyJointVelocities( self.walkerBody, self.getTime() )
 		breve.PhysicalControl.iterate( self )
+		print(self.walkerBody.isUpright())
 	
 WalkerViewer()
