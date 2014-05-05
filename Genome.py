@@ -19,11 +19,11 @@ FOOT_WIDTH = 17
 # Values for initialization:
 MAX_ANGV = 10.0
 MAX_AMPLITDUE = 10.0
-MIN_BODY_WIDTH = 2.0
-MAX_BODY_WIDTH = 6.0
+MIN_BODY_WIDTH = 4.0
+MAX_BODY_WIDTH = 8.0
 MIN_LEG_LENGTH = 0.5
 MAX_LEG_LENGTH = 2.0
-MIN_FOOT_WIDTH = 0.4
+MIN_FOOT_WIDTH = 0.7
 MAX_FOOT_WIDTH = 1.5
 
 class Genome( breve.Object ):
@@ -72,19 +72,6 @@ class Genome( breve.Object ):
 		for n in range(0,10):
 			k = uniform(0,1)
 			if (k < MUTATION_PROBABILITY ):
-				if n < ANGV: # a joint time delay
-					self.chromosomes[ n ] = uniform(-PI, PI)
-				elif n == ANGV: 
-					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.8, 1.2)
-				elif n == AMPLITUDE: 
-					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.7, 1.3)
-				elif n == BODY_WIDTH:
-					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.9, 1.1)
-				elif n == UPPER_LEG_LENGTH:
-					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.8, 1.2)
-				elif n == LOWER_LEG_LENGTH:
-					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.8, 1.2)
-				elif n == FOOT_WIDTH:
 					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.9, 1.1)
 
 	def randomize( self ):
@@ -96,9 +83,6 @@ class Genome( breve.Object ):
 		self.chromosomes[ UPPER_LEG_LENGTH ] = uniform( MIN_LEG_LENGTH, MAX_LEG_LENGTH )
 		self.chromosomes[ LOWER_LEG_LENGTH ] = uniform( MIN_LEG_LENGTH, MAX_LEG_LENGTH )
 		self.chromosomes[ FOOT_WIDTH ] = uniform( MIN_FOOT_WIDTH, MAX_FOOT_WIDTH )
-
-	def setChromosomes( self, chromosomes ):
-		self.chromosomes = chromosomes
 
 	def toString( self ):
 		return " ".join([str(g) for g in self.chromosomes])

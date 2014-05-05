@@ -14,8 +14,8 @@ MAX_DURATION_CHECK = True
 
 ROUND_MAX_DURATION = 60
 STATUS_CHECK_INTERVAL = 10
-POPULATION_SIZE = 10
-ELITE_COUNT = 1
+POPULATION_SIZE = 60
+ELITE_COUNT = 20
 SAVED_WALKERS = "savedWalkers.txt"
 
 # A walker is considered stationary if it has not moved 
@@ -81,12 +81,13 @@ class EvolutionHandler( breve.PhysicalControl ):
 			self.startNewRound()
 
 	def breedWalkers( self ):
-		print "breeding walkers..."
+
 		self.walkers = sortByScore(self.walkers)
 
-		# Print the results and save the best walker to file.
+		# Print the results and save the two best walkers to file.
 		self.saveWalkerToFile(self.walkers[0])
-		print "Results: "
+		self.saveWalkerToFile(self.walkers[1])
+		print "Results of top 10: "
 		print "(ID: Score, Distance)"
 		for i in range(0,10):
 			print self.walkers[i].getID() , ": " , self.walkers[i].getScore(), ": ", self.walkers[i].getDistance()
@@ -95,6 +96,7 @@ class EvolutionHandler( breve.PhysicalControl ):
 		# The best walkers get to live on in the next generation.
 		nextGeneration = self.walkers[:ELITE_COUNT]
 
+		print "breeding walkers..."
 		for p in range(0, POPULATION_SIZE - ELITE_COUNT):
 			parents = self.chooseParents()
 			childrenGenomes = parents[0].breedWith( parents[1] )

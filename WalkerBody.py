@@ -88,7 +88,6 @@ class WalkerBody( breve.MultiBody ):
 		upperLegOffset = breve.vector( 0, 0, self.upperLegLength/2.0)
 		lowerLegOffset = breve.vector( 0, 0, self.lowerLegLength/2.0)
 		footOffset = breve.vector( 0, 0, self.footHeight/2.0)
-		ROTATION_NORMAL = breve.vector( 1, 0, 0 )
 		
 		#bodyOffset specifies the point the joints links to on the body, 
 		#and upperLegOffset specifies the point on the leg to link to.
@@ -101,7 +100,7 @@ class WalkerBody( breve.MultiBody ):
 		self.lowerLegJoints.setDoubleSpring( 700, 0.800000, -0.800000 )
 		self.footJoints.setDoubleSpring( 700, 0.800000, -0.800000 ) #kolla
 
-		[ joint.setStrengthLimit( 400 ) for joint in self.allJoints ]
+		[ joint.setStrengthLimit( 500 ) for joint in self.allJoints ] #400 innan
 		self.setRoot( self.bodyLink )
 
 	def isUpright( self ):
