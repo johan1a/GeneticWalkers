@@ -1,8 +1,8 @@
 import breve
 import sys
 print sys.version
-from WalkerBody import WalkerBody
-from WalkerController import WalkerController
+from FourLeggedWalkerBody import FourLeggedWalkerBody
+from FourLeggedWalkerController import FourLeggedWalkerController
 from Genome import Genome
 from random import randint
 
@@ -14,9 +14,9 @@ MAX_DURATION_CHECK = True
 
 ROUND_MAX_DURATION = 60
 STATUS_CHECK_INTERVAL = 10
-POPULATION_SIZE = 60
-ELITE_COUNT = 20
-SAVED_WALKERS = "savedWalkers.txt"
+POPULATION_SIZE = 40
+ELITE_COUNT = 6
+SAVED_WALKERS = "savedWalkers_n=40.txt"
 
 # A walker is considered stationary if it has not moved 
 # further than MOVEMENT_THRESHOLD since the last status check.
@@ -25,6 +25,7 @@ MOVEMENT_THRESHOLD = 1
 class EvolutionHandler( breve.PhysicalControl ):
 	def __init__( self ):
 		breve.PhysicalControl.__init__( self )
+		self.currentWalker = None
 		self.initWorld()
 		self.initWalkers()
 		self.startNewTournament()
@@ -36,43 +37,47 @@ class EvolutionHandler( breve.PhysicalControl ):
 		self.startNewRound()
 
 	def startNewRound( self ):
-		self.currentWalkerIndex = self.currentWalkerIndex + 1
-		self.roundDuration = 0;
+		self.roundDuration = 0
 		self.uprightCount = 0.0
 
-		self.walkerBody.initBody( self.walkers[ self.currentWalkerIndex ].getChromosomes() )
-		self.walkerBody.center()
-		self.walkerBody.setColors(self.walkers[ self.currentWalkerIndex ].getColors())
-		self.walkerPrevLocation = self.walkerBody.getLocation()
+		self.currentWalkerIndex = self.currentWalkerIndex + 1
+		self.currentWalker = self.walkers[ self.currentWalkerIndex ]
+		self.currentWalker.setupBody()
+		
+		self.watch( self.currentWalker.getBody() )
+
+		self.walkerPrevLocation = self.currentWalker.getLocation()
 
 		self.showInfo()
 		self.schedule( 'checkWalkerStatus', ( self.getTime() + STATUS_CHECK_INTERVAL ) )
 
+
 	# Checks if the walker has run out of time or stopped.
 	# Switches to the next walker if that is the case.
 	def checkWalkerStatus( self ):
+
 		self.roundDuration = self.roundDuration + STATUS_CHECK_INTERVAL
-		if( self.walkerBody.isUpright() ):
+		if( self.currentWalker.isUpright() ):
 			self.uprightCount = self.uprightCount + 1
 
-		if( self.walkerIsStill() or self.roundDuration >= ROUND_MAX_DURATION): #self.walkerIsStill() || 
+		if( self.walkerIsStill() or self.roundDuration >= ROUND_MAX_DURATION): 
 			self.switchWalker()
 		else:
 			self.schedule( 'checkWalkerStatus', ( self.getTime() + STATUS_CHECK_INTERVAL ) )
-			self.walkerPrevLocation = self.walkerBody.getLocation()
+			self.walkerPrevLocation = self.currentWalker.getLocation()
 
 	def switchWalker( self ):
-		distance = breve.length( self.walkerBody.getLocation() )
+		distance = breve.length( self.currentWalker.getLocation() )
 		uprightRatio = 0.5 + 0.5 * self.uprightCount * STATUS_CHECK_INTERVAL / self.roundDuration
 		score = distance * uprightRatio
 
-		walker = self.walkers[ self.currentWalkerIndex ]
-		walker.setDistanceTraveled( distance )
-		walker.setUprightRatio( uprightRatio )
-		walker.setScore( score )
+		self.currentWalker.setDistanceTraveled( distance )
+		self.currentWalker.setUprightRatio( uprightRatio )
+		self.currentWalker.setScore( score )
+		self.currentWalker.deleteBody()
 
-		print "Walker " , self.currentWalkerIndex , " Score: ", score , " Distance: ", distance
-		distance , " LU in ", self.roundDuration, " TU. Upright Ration: ", uprightRatio, "\n"
+		#print "Walker " , self.currentWalkerIndex , " Score: ", score , " Distance: ", distance, " LU in ", self.roundDuration, " TU. Upright Ratio: ", uprightRatio, "\n"
+		print "Walker " , self.currentWalkerIndex , " Score: ", score , " Upright Ratio: ", uprightRatio
 
 		if ( self.currentWalkerIndex == POPULATION_SIZE - 1):
 			self.breedWalkers()
@@ -81,8 +86,7 @@ class EvolutionHandler( breve.PhysicalControl ):
 			self.startNewRound()
 
 	def breedWalkers( self ):
-
-		self.walkers = sortByScore(self.walkers)
+		self.walkers = sortByScore( self.walkers )
 
 		# Print the results and save the two best walkers to file.
 		self.saveWalkerToFile(self.walkers[0])
@@ -100,7 +104,7 @@ class EvolutionHandler( breve.PhysicalControl ):
 		for p in range(0, POPULATION_SIZE - ELITE_COUNT):
 			parents = self.chooseParents()
 			childrenGenomes = parents[0].breedWith( parents[1] )
-			children = [ WalkerController( childrenGenomes[i] ) for i in range( 0, len( childrenGenomes ))]
+			children = [ FourLeggedWalkerController( childrenGenomes[i] ) for i in range( 0, len( childrenGenomes ))]
 			[ child.mutate() for child in children ]
 			nextGeneration = nextGeneration + [child]
 
@@ -126,9 +130,7 @@ class EvolutionHandler( breve.PhysicalControl ):
 		return b.getDistance() - a.getDistance()
 
 	def initWalkers( self ):
-		self.walkerBody = WalkerBody()
-		self.watch( self.walkerBody )
-		self.walkers = [ WalkerController() for i in range(0, POPULATION_SIZE)] 
+		self.walkers = [ FourLeggedWalkerController() for i in range(0, POPULATION_SIZE)] 
 		self.generation = 0
 		print "Starting program..."
 
@@ -138,8 +140,8 @@ class EvolutionHandler( breve.PhysicalControl ):
 
 	def initWorld( self ):
 		self.setRandomSeedFromDevRandom()
-		#self.enableFastPhysics()
-		#self.setFastPhysicsIterations( 40 )
+		self.enableFastPhysics()
+		self.setFastPhysicsIterations( 40 )
 		self.enableLighting()
 		self.enableSmoothDrawing()
 		self.moveLight( breve.vector( 5, 20, 0 ) )
@@ -154,7 +156,7 @@ class EvolutionHandler( breve.PhysicalControl ):
 		self.offsetCamera( breve.vector( 4, 16, -12 ) )
 
 	def iterate( self ):
-		self.walkers[ self.currentWalkerIndex ].applyJointVelocities( self.walkerBody, self.getTime() )
+		self.currentWalker.applyJointVelocities( self.getTime() )
 		breve.PhysicalControl.iterate( self )
 
 	def saveWalkerToFile( self, walker):
@@ -169,7 +171,7 @@ class EvolutionHandler( breve.PhysicalControl ):
 
 	# Checks if the walker has not moved since the last status check.
 	def walkerIsStill( self ):
-		return breve.length( self.walkerBody.getLocation() - self.walkerPrevLocation ) < MOVEMENT_THRESHOLD
+		return breve.length( self.currentWalker.getLocation() - self.walkerPrevLocation ) < MOVEMENT_THRESHOLD
 
 
 def sortByScore(list):
