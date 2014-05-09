@@ -25,10 +25,9 @@ class Genome( breve.Object ):
 		return self.chromosomes
 
 	def mutate( self ):
-		for n in range(0,10):
+		for n in range( 0, len( self.chromosomes ) ):
 			k = uniform(0,1)
 			if (k < MUTATION_PROBABILITY ):
-					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform(0.9, 1.1)
-
+					self.chromosomes[ n ] = self.chromosomes[ n ] * uniform( 0.9, 1.1 )
 	def toString( self ):
-		return " ".join([str(g) for g in self.chromosomes])
+		return self.getType() + ":" + " ".join([str(g) for g in self.chromosomes])

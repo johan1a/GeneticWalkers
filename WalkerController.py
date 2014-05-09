@@ -1,7 +1,6 @@
 import breve
-from Genome import Genome
-class WalkerController( breve.Object ):
 
+class WalkerController( breve.Object ):
 	def __init__( self, chromosomes = None):
 		self.walkerBody = None
 		breve.Object.__init__( self )
@@ -18,6 +17,9 @@ class WalkerController( breve.Object ):
 	def breedWith( self, other):
 		return self.getGenome().crossover( other.getGenome() )
 
+	def getChromosomes( self ):
+		return self.genome.getChromosomes()
+		
 	def setupBody( self ):
 		self.walkerBody.initBody( self.getChromosomes() )
 		self.walkerBody.center()

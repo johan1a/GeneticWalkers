@@ -1,12 +1,5 @@
 import breve
 
-
-#TODO remove
-BODY_WIDTH = 14
-UPPER_LEG_WIDTH = 15
-LOWER_LEG_WIDTH = 16
-FOOT_WIDTH = 17
-
 class WalkerBody( breve.MultiBody ):
 	def __init__( self , chromosomes = None):
 		breve.MultiBody.__init__( self )
@@ -19,7 +12,7 @@ class WalkerBody( breve.MultiBody ):
 			self.allJoints[i].setJointVelocity( velocities[i] )
 
 	def center( self ):
-		self.move( breve.vector( 0, self.upperLegLength + self.lowerLegLength + self.footHeight + 5, 0 ) )
+		self.move( breve.vector( 0, self.startingHeight, 0 ) )
 		self.rotate( breve.vector( 1, 0, 0 ), 1.570000 )
 		for joint in self.allJoints:
 			joint.setJointVelocity(0)

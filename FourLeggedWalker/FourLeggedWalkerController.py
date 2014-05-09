@@ -13,6 +13,3 @@ class FourLeggedWalkerController( WalkerController ):
 
 	def initGenome( self, chromosomes ):
 		self.genome = FourLeggedWalkerGenome( chromosomes )
-
-	def getChromosomes( self ):
-		return self.genome.getChromosomes()

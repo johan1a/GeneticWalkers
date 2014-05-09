@@ -15,7 +15,7 @@ LOWER_LEG_LENGTH = 16
 FOOT_WIDTH = 17
 
 # Values for initialization:
-MAX_ANGV = 10.0
+MAX_ANGV = 14.0
 MAX_AMPLITDUE = 10.0
 MIN_BODY_WIDTH = 4.0
 MAX_BODY_WIDTH = 8.0
@@ -57,3 +57,6 @@ class FourLeggedWalkerGenome( Genome ):
 		self.chromosomes[ UPPER_LEG_LENGTH ] = uniform( MIN_LEG_LENGTH, MAX_LEG_LENGTH )
 		self.chromosomes[ LOWER_LEG_LENGTH ] = uniform( MIN_LEG_LENGTH, MAX_LEG_LENGTH )
 		self.chromosomes[ FOOT_WIDTH ] = uniform( MIN_FOOT_WIDTH, MAX_FOOT_WIDTH )
+
+	def getType( self ):
+		return "FourLegged"

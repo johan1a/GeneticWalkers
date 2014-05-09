@@ -1,18 +1,10 @@
 import breve
 from WalkerBody import WalkerBody
 
-#TODO remove
-BODY_WIDTH = 14
-UPPER_LEG_WIDTH = 15
-LOWER_LEG_WIDTH = 16
-FOOT_WIDTH = 17
-
-NBR_LEGS = 4
-LEG_WIDTH = 0.4
-FOOT_HEIGHT = 0.2
+NBR_LEGS = 2
 ROTATION_NORMAL = breve.vector( 1, 0, 0 )
 
-class FourLeggedWalkerBody( WalkerBody ):
+class TwoLeggedWalkerBody( WalkerBody ):
 	def __init__( self, chromosomes = None ):
 		WalkerBody.__init__( self, chromosomes )
 
@@ -21,21 +13,22 @@ class FourLeggedWalkerBody( WalkerBody ):
 			self.allJoints[i].setJointVelocity( velocities[i] )
 
 	def initShape( self, chromosomes ):
-		self.bodyWidth = chromosomes[BODY_WIDTH]
-		self.bodyLength = self.bodyWidth # might remove
+		self.bodyWidth = 4
+		self.bodyDepth = 1 
+		self.bodyHeight = 4
 
-		footWidth = chromosomes[FOOT_WIDTH]
-		self.footHeight = FOOT_HEIGHT
+		footWidth = 2.5
+		self.footHeight = 0.3
 
-		self.upperLegLength = chromosomes[UPPER_LEG_WIDTH]
-		self.lowerLegLength = chromosomes[LOWER_LEG_WIDTH]
+		self.legLength = 2
+		self.legWidth = 0.5
 
-		self.startingHeight = self.upperLegLength + self.lowerLegLength + self.footHeight + 5
+		self.startingHeight = 2 * self.legLength + self.bodyHeight
 
-		lowerLegShape = breve.Cube().initWith( breve.vector( LEG_WIDTH , LEG_WIDTH , self.lowerLegLength )) 
-		upperLegShape = breve.Cube().initWith( breve.vector( LEG_WIDTH , LEG_WIDTH , self.upperLegLength ))
+		lowerLegShape = breve.Cube().initWith( breve.vector( self.legWidth , self.legWidth , self.legLength )) 
+		upperLegShape = breve.Cube().initWith( breve.vector( self.legWidth , self.legWidth , self.legLength ))
 		footShape = breve.Cube().initWith( breve.vector( footWidth, footWidth, self.footHeight ))
-		bodyShape = breve.Cube().initWith( breve.vector( self.bodyWidth, self.bodyWidth, 0.400000 ) )
+		bodyShape = breve.Cube().initWith( breve.vector( self.bodyWidth, self.bodyDepth, self.bodyHeight ) )
 	
 		self.bodyLink = breve.Link()
 		self.lowerLegs = breve.createInstances( breve.Links, NBR_LEGS )
@@ -59,29 +52,26 @@ class FourLeggedWalkerBody( WalkerBody ):
 		self.allJoints = self.upperLegJoints + self.lowerLegJoints + self.footJoints
 		map(self.addDependency, self.allJoints)
 
-		rearLeft = breve.vector( self.bodyWidth / 2.0, -self.bodyLength / 2.0, 0.2 )
-		frontLeft = breve.vector( self.bodyWidth / 2.0, self.bodyLength / 2.0, 0.2 )
-		rearRight = breve.vector( -self.bodyWidth / 2.0, -self.bodyLength / 2.0, 0.2 )
-		frontRight = breve.vector( -self.bodyWidth / 2.0, self.bodyLength / 2.0, 0.2 )
-		bodyOffsets = [frontLeft, frontRight, rearLeft, rearRight]
+		left = breve.vector( self.bodyWidth / 2.0, 0, self.bodyHeight/2 )
+		right = breve.vector( -self.bodyWidth / 2.0, 0, self.bodyHeight/2 )
+		bodyOffsets = [left, right]
 
-		upperLegOffset = breve.vector( 0, 0, self.upperLegLength/2.0)
-		lowerLegOffset = breve.vector( 0, 0, self.lowerLegLength/2.0)
+		legOffset = breve.vector( 0, 0, self.legLength/2.0)
 		footOffset = breve.vector( 0, 0, self.footHeight/2.0)
 		
 		#bodyOffset specifies the point the joints links to on the body, 
 		#and upperLegOffset specifies the point on the leg to link to.
 		for i in range(0, NBR_LEGS):
-			self.upperLegJoints[i].link( ROTATION_NORMAL, bodyOffsets[i], -upperLegOffset, self.upperLegs[ i ], self.bodyLink )
-			self.lowerLegJoints[i].link( ROTATION_NORMAL, upperLegOffset, -lowerLegOffset, self.lowerLegs[ i ], self.upperLegs[ i ] )
-			self.footJoints[i].link( ROTATION_NORMAL, lowerLegOffset + footOffset, breve.vector( 0, 0, 0 ), self.feet[ i ], self.lowerLegs[ i ] )
+			self.upperLegJoints[i].link( ROTATION_NORMAL, bodyOffsets[i], -legOffset, self.upperLegs[ i ], self.bodyLink )
+			self.lowerLegJoints[i].link( ROTATION_NORMAL, legOffset, -legOffset, self.lowerLegs[ i ], self.upperLegs[ i ] )
+			self.footJoints[i].link( ROTATION_NORMAL, legOffset + footOffset, breve.vector( 0, 0, 0 ), self.feet[ i ], self.lowerLegs[ i ] )
 		
 		self.upperLegJoints.setDoubleSpring( 700, 0.800000, -0.800000 )
 		self.lowerLegJoints.setDoubleSpring( 700, 0.800000, -0.800000 )
-		self.footJoints.setDoubleSpring( 700, 0.800000, -0.800000 ) #kolla
+		self.footJoints.setDoubleSpring( 999, 0.400000, -0.400000 ) #kolla
 
 		[ joint.setStrengthLimit( 500 ) for joint in self.allJoints ] #400 innan
 		self.setRoot( self.bodyLink )
 
 	def isUpright( self ):
-		return self.bodyLink.getRotationMatrix()[5] < 0 
+		return self.bodyLink.getRotationMatrix()[5] < -0.1
