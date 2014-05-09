@@ -1,30 +1,27 @@
 import breve
-import sys
-print sys.version
-from FourLeggedWalkerBody import FourLeggedWalkerBody
-from FourLeggedWalkerController import FourLeggedWalkerController
-from Genome import Genome
 from random import randint
 
-breve.Genome = Genome # takes care of problems with import conflicts in other files 
+
+#Default values:
 
 # True if each round is stopped after ROUND_MAX_DURATION. 
 # If false, the round continues until the walker has stopped
 MAX_DURATION_CHECK = True
-
 ROUND_MAX_DURATION = 60
 STATUS_CHECK_INTERVAL = 10
 POPULATION_SIZE = 40
 ELITE_COUNT = 6
-SAVED_WALKERS = "savedWalkers_n=40.txt"
+SAVE_FILE = "saveFileDefault.txt"
 
 # A walker is considered stationary if it has not moved 
 # further than MOVEMENT_THRESHOLD since the last status check.
 MOVEMENT_THRESHOLD = 1 
 
 class EvolutionHandler( breve.PhysicalControl ):
-	def __init__( self ):
+	def __init__( self, walkerType, configValues = None ):
 		breve.PhysicalControl.__init__( self )
+		self.initConfigValues( configValues )
+		self.walkerType = walkerType
 		self.currentWalker = None
 		self.initWorld()
 		self.initWalkers()
@@ -45,17 +42,14 @@ class EvolutionHandler( breve.PhysicalControl ):
 		self.currentWalker.setupBody()
 		
 		self.watch( self.currentWalker.getBody() )
-
-		self.walkerPrevLocation = self.currentWalker.getLocation()
+ 		self.walkerPrevLocation = self.currentWalker.getLocation()
 
 		self.showInfo()
 		self.schedule( 'checkWalkerStatus', ( self.getTime() + STATUS_CHECK_INTERVAL ) )
 
-
 	# Checks if the walker has run out of time or stopped.
 	# Switches to the next walker if that is the case.
 	def checkWalkerStatus( self ):
-
 		self.roundDuration = self.roundDuration + STATUS_CHECK_INTERVAL
 		if( self.currentWalker.isUpright() ):
 			self.uprightCount = self.uprightCount + 1
@@ -104,7 +98,7 @@ class EvolutionHandler( breve.PhysicalControl ):
 		for p in range(0, POPULATION_SIZE - ELITE_COUNT):
 			parents = self.chooseParents()
 			childrenGenomes = parents[0].breedWith( parents[1] )
-			children = [ FourLeggedWalkerController( childrenGenomes[i] ) for i in range( 0, len( childrenGenomes ))]
+			children = [ self.makeWalkerController( childrenGenomes[i] ) for i in range( 0, len( childrenGenomes ))]
 			[ child.mutate() for child in children ]
 			nextGeneration = nextGeneration + [child]
 
@@ -130,7 +124,7 @@ class EvolutionHandler( breve.PhysicalControl ):
 		return b.getDistance() - a.getDistance()
 
 	def initWalkers( self ):
-		self.walkers = [ FourLeggedWalkerController() for i in range(0, POPULATION_SIZE)] 
+		self.walkers = [ self.makeWalkerController() for i in range(0, POPULATION_SIZE)] 
 		self.generation = 0
 		print "Starting program..."
 
@@ -172,6 +166,28 @@ class EvolutionHandler( breve.PhysicalControl ):
 	# Checks if the walker has not moved since the last status check.
 	def walkerIsStill( self ):
 		return breve.length( self.currentWalker.getLocation() - self.walkerPrevLocation ) < MOVEMENT_THRESHOLD
+
+	# Sets the configuration values
+	def initConfigValues( self, customValues = None ):
+		if(customValues is None):
+			self.maxDurationCheck = MAX_DURATION_CHECK
+			self.roundMaxDuration = ROUND_MAX_DURATION
+			self.statusCheckInterval = STATUS_CHECK_INTERVAL
+			self.populationSize = POPULATION_SIZE
+			self.eliteCount = ELITE_COUNT
+			self.saveFile = SAVE_FILE
+			self.movementThreshold = MOVEMENT_THRESHOLD
+		else:
+			self.maxDurationCheck = customValues["MAX_DURATION_CHECK"]
+			self.roundMaxDuration = customValues["ROUND_MAX_DURATION"]
+			self.statusCheckInterval = customValues["STATUS_CHECK_INTERVAL"]
+			self.populationSize = customValues["POPULATION_SIZE"]
+			self.eliteCount = customValues["ELITE_COUNT"]
+			self.saveFile = customValues["SAVE_FILE"]
+			self.movementThreshold = customValues["MOVEMENT_THRESHOLD"]
+
+	def makeWalkerController( self, chromosomes = None ):
+		return self.walkerType( chromosomes )
 
 
 def sortByScore(list):
