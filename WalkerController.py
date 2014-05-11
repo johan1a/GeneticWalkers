@@ -69,6 +69,9 @@ class WalkerController( breve.Object ):
 
 	def setDistanceTraveled( self, value ):
 		self.distanceTraveled = value
+		
+	def getUprightRatio( self ):
+		return self.uprightRatio
 
 	def setUprightRatio( self, value ):
 		self.uprightRatio = value
@@ -79,4 +82,8 @@ class WalkerController( breve.Object ):
 	def setScore( self, value ):
 		self.score = value
 
+	def getTime( self ):
+		return self.time
 
+	def setTime( self, value ):
+		self.time = value
