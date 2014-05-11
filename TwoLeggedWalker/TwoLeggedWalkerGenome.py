@@ -11,8 +11,8 @@ AMPLITUDE = 3
 ANGV = 6
 
 # Values for initialization:
-MAX_ANGV = 14.0
-MAX_AMPLITDUE = 10.0
+MAX_ANGV = 10.0
+MAX_AMPLITDUE = 20.0
 
 class TwoLeggedWalkerGenome( Genome ):
 	def __init__( self, chromosomes = None ):
@@ -41,7 +41,7 @@ class TwoLeggedWalkerGenome( Genome ):
 	def randomize( self ):
 		for i in range(0,3):
 			self.chromosomes[ i ] = uniform( -PI, PI )
-		for i in range(3,5):
+		for i in range(3,6):
 			self.chromosomes[ i ] = uniform( 0, MAX_AMPLITDUE )
 		self.chromosomes[ ANGV ] = uniform( -MAX_ANGV, MAX_ANGV )
 

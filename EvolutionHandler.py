@@ -93,9 +93,9 @@ class EvolutionHandler( breve.PhysicalControl ):
 		self.saveWalkerToFile(self.walkers[0])
 		self.saveWalkerToFile(self.walkers[1])
 		print "Results of top 10: "
-		print "(ID: Score, Distance)"
+		print "(ID: Score, Distance, Time)"
 		for i in range(0,10):
-			print self.walkers[i].getID() , ": " , self.walkers[i].getScore(), ": ", self.walkers[i].getDistance()
+			print self.walkers[i].getID() , ": " , self.walkers[i].getScore(), ", ", self.walkers[i].getDistance(), ", ", self.walkers[i].getScore()
 
 		# The walkers of the next generation. 
 		# The best walkers get to live on in the next generation.

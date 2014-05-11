@@ -17,12 +17,12 @@ FOOT_WIDTH = 17
 # Values for initialization:
 MAX_ANGV = 14.0
 MAX_AMPLITDUE = 10.0
-MIN_BODY_WIDTH = 4.0
+MIN_BODY_WIDTH = 2.0
 MAX_BODY_WIDTH = 8.0
 MIN_LEG_LENGTH = 0.5
-MAX_LEG_LENGTH = 2.0
+MAX_LEG_LENGTH = 3.0
 MIN_FOOT_WIDTH = 0.7
-MAX_FOOT_WIDTH = 1.5
+MAX_FOOT_WIDTH = 2.5
 
 class FourLeggedWalkerGenome( Genome ):
 	def __init__( self, chromosomes = None ):

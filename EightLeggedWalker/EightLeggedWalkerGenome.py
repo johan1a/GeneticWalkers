@@ -18,7 +18,7 @@ class EightLeggedWalkerGenome( Genome ):
 	def __init__( self, chromosomes = None ):
 		breve.Object.__init__( self )
 		if(chromosomes is None):
-			self.chromosomes = [ 0 ] * 18
+			self.chromosomes = [ 0 ] * 6
 			self.randomize()
 		else:
 			self.chromosomes = chromosomes
@@ -30,7 +30,7 @@ class EightLeggedWalkerGenome( Genome ):
 		return self.chromosomes[ AMPLITUDE ] *  math.sin( self.chromosomes[ ANGV ] * time + self.getDT(i) ) 
 
 	def getDT( self, i ):
-		return self.chromosomes[ i % 4 ] 
+		return self.chromosomes[ i % 4 ]
 
 	def randomize( self ):
 		for i in range(0,4):
@@ -39,4 +39,4 @@ class EightLeggedWalkerGenome( Genome ):
 		self.chromosomes[ AMPLITUDE ] = uniform( 0, MAX_AMPLITDUE )	
 
 	def getType( self ):
-		return "FourLegged"
+		return "EightLegged"
