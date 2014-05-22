@@ -11,8 +11,8 @@ ANGV = 8
 AMPLITUDE = 9
 
 # Values for initialization:
-MAX_ANGV = 18.0
-MAX_AMPLITDUE = 12.0
+MAX_ANGV = 10.0
+MAX_AMPLITDUE = 8.0
 
 class SimpleQuadrupedGenome( Genome ):
 	def __init__( self, chromosomes = None ):

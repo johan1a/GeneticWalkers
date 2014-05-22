@@ -14,7 +14,7 @@ configValues["ELITE_COUNT"] = 6
 configValues["BEST_WALKERS_SAVE_FILE"] = "simple_quadrupeds.txt"
 configValues["AUTOSAVE_ACTIVE"] = True
 configValues["SIMULATION_SAVE_FILE"] = "SQ_simulation_save.txt"
-configValues["START_FROM_STORED_PROGRESS"] = False
+configValues["START_FROM_STORED_PROGRESS"] = True
 configValues["AUTOSAVE_INTERVAL"] = 10
 
 def scoreFunc( dist, time, uprightPercentage ):

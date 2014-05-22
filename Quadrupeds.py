@@ -7,7 +7,7 @@ from QuadrupedController import QuadrupedController
 from EvolutionHandler import EvolutionHandler
 
 configValues = {}
-configValues["ROUND_MAX_DURATION"] = 120
+configValues["ROUND_MAX_DURATION"] = 60
 configValues["STATUS_CHECK_INTERVAL"] = 5
 configValues["POPULATION_SIZE"] = 40
 configValues["ELITE_COUNT"] = 6
